@@ -8,7 +8,20 @@ Eski projeden kalan dosyalar `public_html` klasöründe:
 - ✅ `index.html` (eski)
 - ✅ Icon dosyaları (favicon, android-chrome, apple-touch-icon)
 - ✅ `robots.txt`, `sitemap.xml`, `site.webmanifest`
+- ✅ **Google Search Console verification dosyaları** (google*.html, google*.txt) - **KORUNMALI!**
+- ✅ Diğer SEO dosyaları
 - ✅ Diğer dosyalar
+
+## ⚠️ ÖNEMLİ: Google Search Console Dosyaları
+
+**Google Search Console verification dosyalarını KESINLIKLE silmeyin veya değiştirmeyin!**
+
+Bu dosyalar genellikle şu isimlerle olur:
+- `google*.html` (örn: `google1234567890abcdef.html`)
+- `google*.txt` (örn: `google1234567890abcdef.txt`)
+- `google-site-verification.html`
+
+**Bu dosyalar Google'ın sitenizi tanıması için gereklidir. Silerseniz Google Search Console'dan doğrulamanızı yeniden yapmanız gerekir!**
 
 ## 🚀 Güncelleme Adımları
 
@@ -29,13 +42,12 @@ Eski projeden kalan dosyalar `public_html` klasöründe:
 #### Adım 2: Yeni Dosyaları Yükleme
 
 1. **Local'de `packages/web/dist` klasörünü açın**
-2. **TÜM dosyaları seçin:**
-   - `index.html` (YENİ - API URL güncel)
-   - `assets/` klasörü (YENİ - güncel build)
-   - `.htaccess` (YENİ - React Router için)
-   - Icon dosyaları (aynı kalabilir veya yeni)
-   - `robots.txt`, `sitemap.xml`, `site.webmanifest` (aynı kalabilir)
-   - Diğer dosyalar
+2. **Yüklenecek dosyaları seçin:**
+   - ✅ `index.html` (YENİ - API URL güncel)
+   - ✅ `assets/` klasörü (YENİ - güncel build)
+   - ✅ `.htaccess` (YENİ - React Router için)
+   - ⚠️ Icon dosyaları (aynı kalabilir veya yeni)
+   - ⚠️ `robots.txt`, `sitemap.xml`, `site.webmanifest` (yeni build'de var, ama eski versiyonları koruyabilirsiniz)
 
 3. **File Manager'da `public_html` klasörüne gidin**
 4. **Upload** butonuna tıklayın
@@ -44,6 +56,7 @@ Eski projeden kalan dosyalar `public_html` klasöründe:
 **ÖNEMLİ:**
 - `.htaccess` dosyası görünmeyebilir. "Show Hidden Files" seçeneğini aktif edin.
 - `assets/` klasörünün TÜM içeriğini yükleyin (alt klasörler dahil).
+- **Google verification dosyalarını (google*.html, google*.txt) YÜKLEMEYİN - ESKİLERİ KORUYUN!**
 
 #### Adım 3: Eski Dosyaları Silme (Opsiyonel)
 
@@ -52,7 +65,10 @@ Eğer yedek aldıysanız, eski dosyaları silebilirsiniz:
 2. Eski `index.html`'i silin (yeni zaten yüklendi)
 3. Eski `.htaccess`'i silin (yeni zaten yüklendi)
 
-**Not:** Icon dosyaları (`favicon.ico`, `android-chrome-*.png`, vb.) aynı kalabilir, değiştirmenize gerek yok.
+**⚠️ KORUNMASI GEREKEN DOSYALAR (SİLMEYİN!):**
+- ❌ **Google verification dosyaları** (`google*.html`, `google*.txt`) - **KESINLIKLE SİLMEYİN!**
+- ⚠️ Icon dosyaları (`favicon.ico`, `android-chrome-*.png`, vb.) - Aynı kalabilir
+- ⚠️ `robots.txt`, `sitemap.xml` - Eğer eski versiyonları daha güncelse koruyun
 
 ---
 
@@ -78,7 +94,9 @@ Eğer yedek aldıysanız, eski dosyaları silebilirsiniz:
    - Sol taraftan `index.html`'i seçin → Sağ tarafa sürükleyin
    - Sol taraftan `assets/` klasörünü seçin → Sağ tarafa sürükleyin
    - Sol taraftan `.htaccess`'i seçin → Sağ tarafa sürükleyin
-   - Diğer dosyalar (icon'lar, robots.txt, vb.) aynı kalabilir
+   - ⚠️ Diğer dosyalar (icon'lar, robots.txt, sitemap.xml) - Eski versiyonları koruyabilirsiniz
+
+**⚠️ ÖNEMLİ:** Google verification dosyalarını (`google*.html`, `google*.txt`) YÜKLEMEYİN - ESKİLERİ KORUYUN!
 
 ---
 
@@ -88,14 +106,17 @@ Eğer yedek aldıysanız, eski dosyaları silebilirsiniz:
 - [ ] Eski dosyalar yedeklendi
 - [ ] Yeni build hazır (`packages/web/dist`)
 - [ ] `.htaccess` dosyası dist klasöründe var
+- [ ] Google verification dosyaları tespit edildi ve korunacak
 
 ### Yükleme Sonrası
 - [ ] `index.html` yüklendi (yeni)
 - [ ] `assets/` klasörü yüklendi (yeni, tüm içeriğiyle)
 - [ ] `.htaccess` yüklendi (yeni)
+- [ ] **Google verification dosyaları korundu** (google*.html, google*.txt)
 - [ ] Site açılıyor: `https://yourdomain.com`
 - [ ] Browser Console'da hata yok
 - [ ] API bağlantısı çalışıyor
+- [ ] Google Search Console'da site hala doğrulanmış durumda
 
 ---
 
