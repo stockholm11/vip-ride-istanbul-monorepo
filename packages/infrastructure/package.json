@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.json"
+    "build": "tsc -p tsconfig.json && tscpaths -p tsconfig.json -s src -o dist"
   },
   "dependencies": {
     "@vip-ride/application": "workspace:*",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@types/nodemailer": "^6.4.14"
+    "@types/nodemailer": "^6.4.14",
+    "tscpaths": "^0.0.9"
   }
 }

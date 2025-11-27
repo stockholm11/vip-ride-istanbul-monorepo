@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@vip-ride/domain/*": ["packages/domain/src/*"],
+      "@vip-ride/application/*": ["packages/application/src/*"],
+      "@vip-ride/infrastructure/*": ["packages/infrastructure/src/*"],
+      "@vip-ride/api/*": ["packages/api/src/*"]
+    }
+  }
+}
+
