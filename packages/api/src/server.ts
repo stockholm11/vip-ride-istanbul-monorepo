@@ -216,6 +216,10 @@ const pricingController = new PricingController(
 
 const app = express();
 
+// Trust proxy - Required for Render and other cloud platforms
+// This allows express-rate-limit to correctly identify client IPs
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
