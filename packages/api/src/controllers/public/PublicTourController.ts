@@ -6,9 +6,9 @@ import { TourPublicDTO } from "@vip-ride/application/dtos/public/TourPublicDTO";
 export class PublicTourController {
   constructor(private readonly tourRepository: ITourRepository) {}
 
-  list = async (_req: Request, res: Response) => {
+  list = async (req: Request, res: Response) => {
     const tours = await this.tourRepository.findAll();
-    const data = tours.map((tour, index) => this.mapTourToPublicDTO(tour, index));
+    const data = tours.map((tour, index) => this.mapTourToPublicDTO(tour, index, req));
     return res.json(data);
   };
 
@@ -21,11 +21,11 @@ export class PublicTourController {
       return res.status(404).json({ message: "Tour not found" });
     }
 
-    const dto = this.mapTourToPublicDTO(tour, tours.indexOf(tour));
+    const dto = this.mapTourToPublicDTO(tour, tours.indexOf(tour), req);
     return res.json(dto);
   };
 
-  private mapTourToPublicDTO(tour: Tour, index: number): TourPublicDTO {
+  private mapTourToPublicDTO(tour: Tour, index: number, req?: Request): TourPublicDTO {
     const data = tour.data;
     const longDescription =
       data.longDescription ?? data.shortDescription ?? "";
@@ -34,12 +34,22 @@ export class PublicTourController {
     const durationMinutes = data.durationMinutes ?? null;
     const capacity = data.capacity ?? null;
 
+    // Convert imageUrl to full URL if it's relative
+    let imageUrl = data.imageUrl ?? "";
+    if (imageUrl && !imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+      const apiBaseUrl = process.env.API_BASE_URL || 
+                         process.env.RENDER_EXTERNAL_URL || 
+                         (req ? `${req.protocol}://${req.get("host")}` : "");
+      const relativePath = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
+      imageUrl = apiBaseUrl ? `${apiBaseUrl}${relativePath}` : relativePath;
+    }
+
     return {
       id: Number.parseInt(data.id, 10) || sortOrder,
       title: data.title,
       slug: data.slug,
-      imageUrl: data.imageUrl ?? "",
-      gallery: data.imageUrl ? [data.imageUrl] : [],
+      imageUrl,
+      gallery: imageUrl ? [imageUrl] : [],
       durationMinutes: durationMinutes ?? null,
       includes: [],
       price: data.price,

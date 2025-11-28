@@ -6,13 +6,13 @@ import { VehiclePublicDTO } from "@vip-ride/application/dtos/public/VehiclePubli
 export class PublicVehicleController {
   constructor(private readonly vehicleRepository: IVehicleRepository) {}
 
-  list = async (_req: Request, res: Response) => {
+  list = async (req: Request, res: Response) => {
     const vehicles = await this.vehicleRepository.findAll();
-    const data = vehicles.map((vehicle, index) => this.mapVehicleToPublicDTO(vehicle, index));
+    const data = vehicles.map((vehicle, index) => this.mapVehicleToPublicDTO(vehicle, index, req));
     return res.json(data);
   };
 
-  private mapVehicleToPublicDTO(vehicle: Vehicle, index: number): VehiclePublicDTO {
+  private mapVehicleToPublicDTO(vehicle: Vehicle, index: number, req?: Request): VehiclePublicDTO {
     const data = vehicle.data;
     const descriptionLong = data.description ?? "";
     const descriptionShort = descriptionLong ? descriptionLong.slice(0, 140) : "";
@@ -21,7 +21,17 @@ export class PublicVehicleController {
 
     let mainImage = null;
     if (data.imageUrl) {
-      mainImage = data.imageUrl.startsWith("/") ? data.imageUrl : `/${data.imageUrl}`;
+      // If it's already a full URL (starts with http:// or https://), use as is
+      if (data.imageUrl.startsWith("http://") || data.imageUrl.startsWith("https://")) {
+        mainImage = data.imageUrl;
+      } else {
+        // Relative path - convert to full URL
+        const apiBaseUrl = process.env.API_BASE_URL || 
+                         process.env.RENDER_EXTERNAL_URL || 
+                         (req ? `${req.protocol}://${req.get("host")}` : "");
+        const relativePath = data.imageUrl.startsWith("/") ? data.imageUrl : `/${data.imageUrl}`;
+        mainImage = apiBaseUrl ? `${apiBaseUrl}${relativePath}` : relativePath;
+      }
     }
 
     return {

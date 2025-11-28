@@ -43,7 +43,14 @@ const routeHandler = async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
-  const url = `/uploads/${req.file.filename}`;
+  
+  // Get API base URL from environment or construct from request
+  // Render provides RENDER_EXTERNAL_URL, or use API_BASE_URL if set
+  const apiBaseUrl = process.env.API_BASE_URL || 
+                     process.env.RENDER_EXTERNAL_URL || 
+                     (req.protocol + "://" + req.get("host"));
+  
+  const url = `${apiBaseUrl}/uploads/${req.file.filename}`;
   return res.json({ url });
 };
 
