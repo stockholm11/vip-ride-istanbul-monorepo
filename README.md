@@ -64,6 +64,14 @@ GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 # Redis Configuration (optional, defaults to localhost:6379)
 REDIS_URL=redis://localhost:6379
 
+# Hostinger FTP Configuration (optional, for image uploads to Hostinger)
+HOSTINGER_FTP_HOST=ftp.yourdomain.com
+HOSTINGER_FTP_PORT=22
+HOSTINGER_FTP_USERNAME=u123456789@yourdomain.com
+HOSTINGER_FTP_PASSWORD=your_ftp_password
+HOSTINGER_FTP_PATH=/home/u123456789/domains/yourdomain.com/uploads
+HOSTINGER_BASE_URL=https://yourdomain.com
+
 # Server Port (optional, defaults to 3000)
 PORT=3000
 

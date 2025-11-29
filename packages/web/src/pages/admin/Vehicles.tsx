@@ -416,7 +416,7 @@ const VehiclesPage = () => {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         try {
-                          const url = await uploadImage(file);
+                          const url = await uploadImage(file, "vehicle");
                           setFormState((prev) => ({ ...prev, imageUrl: url }));
                         } catch (error) {
                           console.error("Image upload failed:", error);
