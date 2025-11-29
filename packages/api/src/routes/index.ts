@@ -22,7 +22,7 @@ const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   validate: {
-    xForwardedForHeader: false, // Disable X-Forwarded-For validation (trust proxy is set in server.ts)
+    trustProxy: false, // Disable trust proxy validation (trust proxy is set to 1 in server.ts for Render)
   },
 });
 
@@ -34,7 +34,7 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   validate: {
-    xForwardedForHeader: false, // Disable X-Forwarded-For validation (trust proxy is set in server.ts)
+    trustProxy: false, // Disable trust proxy validation (trust proxy is set to 1 in server.ts for Render)
   },
 });
 

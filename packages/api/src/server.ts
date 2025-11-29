@@ -218,7 +218,8 @@ const app = express();
 
 // Trust proxy - Required for Render and other cloud platforms
 // This allows express-rate-limit to correctly identify client IPs
-app.set('trust proxy', true);
+// Set to 1 for Render (1 proxy layer) - more secure than 'true'
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
