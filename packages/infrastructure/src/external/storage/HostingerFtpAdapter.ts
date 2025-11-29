@@ -45,7 +45,10 @@ export class HostingerFtpAdapter {
         port: env.hostingerFtpPort,
         username: env.hostingerFtpUsername,
         password: env.hostingerFtpPassword,
-        timeout: 30000, // 30 seconds
+        timeout: 60000, // 60 seconds (increased for slow connections)
+        readyTimeout: 60000, // 60 seconds for handshake
+        retries: 2, // Retry connection 2 times
+        retry_factor: 2, // Exponential backoff
       });
 
       // Ensure target directory exists
