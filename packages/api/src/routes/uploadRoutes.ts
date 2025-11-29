@@ -46,9 +46,10 @@ const routeHandler = async (req: Request, res: Response) => {
   
   // Get API base URL from environment or construct from request
   // Render provides RENDER_EXTERNAL_URL, or use API_BASE_URL if set
+  // Prefer environment variables over req.get("host") for production
   const apiBaseUrl = process.env.API_BASE_URL || 
                      process.env.RENDER_EXTERNAL_URL || 
-                     (req.protocol + "://" + req.get("host"));
+                     (req.get("host") ? (req.protocol + "://" + req.get("host")) : "");
   
   const url = `${apiBaseUrl}/uploads/${req.file.filename}`;
   return res.json({ url });

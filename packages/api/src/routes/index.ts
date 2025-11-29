@@ -21,6 +21,9 @@ const loginLimiter = rateLimit({
   message: "Too many login attempts, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false, // Disable X-Forwarded-For validation (trust proxy is set in server.ts)
+  },
 });
 
 // General API rate limiting
@@ -30,6 +33,9 @@ const apiLimiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false, // Disable X-Forwarded-For validation (trust proxy is set in server.ts)
+  },
 });
 
 interface RoutesDeps {

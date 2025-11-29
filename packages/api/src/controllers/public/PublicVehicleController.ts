@@ -26,9 +26,10 @@ export class PublicVehicleController {
         mainImage = data.imageUrl;
       } else {
         // Relative path - convert to full URL
+        // Prefer environment variables over req.get("host") for production
         const apiBaseUrl = process.env.API_BASE_URL || 
                          process.env.RENDER_EXTERNAL_URL || 
-                         (req ? `${req.protocol}://${req.get("host")}` : "");
+                         (req && req.get("host") ? `${req.protocol}://${req.get("host")}` : "");
         const relativePath = data.imageUrl.startsWith("/") ? data.imageUrl : `/${data.imageUrl}`;
         mainImage = apiBaseUrl ? `${apiBaseUrl}${relativePath}` : relativePath;
       }

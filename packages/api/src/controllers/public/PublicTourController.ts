@@ -37,9 +37,10 @@ export class PublicTourController {
     // Convert imageUrl to full URL if it's relative
     let imageUrl = data.imageUrl ?? "";
     if (imageUrl && !imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+      // Prefer environment variables over req.get("host") for production
       const apiBaseUrl = process.env.API_BASE_URL || 
                          process.env.RENDER_EXTERNAL_URL || 
-                         (req ? `${req.protocol}://${req.get("host")}` : "");
+                         (req && req.get("host") ? `${req.protocol}://${req.get("host")}` : "");
       const relativePath = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
       imageUrl = apiBaseUrl ? `${apiBaseUrl}${relativePath}` : relativePath;
     }
