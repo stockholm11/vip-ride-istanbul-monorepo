@@ -124,6 +124,9 @@ importers:
       '@vip-ride/domain':
         specifier: workspace:*
         version: link:../domain
+      basic-ftp:
+        specifier: ^5.0.5
+        version: 5.0.5
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -1731,6 +1734,10 @@ packages:
   baseline-browser-mapping@2.8.29:
     resolution: {integrity: sha512-sXdt2elaVnhpDNRDz+1BDx1JQoJRuNk7oVlAlbGiFkLikHCAQiccexF/9e91zVi6RCgqspl04aP+6Cnl9zRLrA==}
     hasBin: true
+
+  basic-ftp@5.0.5:
+    resolution: {integrity: sha512-4Bcg1P8xhUuqcii/S0Z9wiHIrQVPMermM1any+MX5GeGD7faD3/msQUDGLol9wOcz4/jbg/WJnGqoJF6LiBdtg==}
+    engines: {node: '>=10.0.0'}
 
   bcrypt-pbkdf@1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
@@ -6009,6 +6016,8 @@ snapshots:
       pascalcase: 0.1.1
 
   baseline-browser-mapping@2.8.29: {}
+
+  basic-ftp@5.0.5: {}
 
   bcrypt-pbkdf@1.0.2:
     dependencies:

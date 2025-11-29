@@ -9,6 +9,7 @@
   "dependencies": {
     "@vip-ride/application": "workspace:*",
     "@vip-ride/domain": "workspace:*",
+    "basic-ftp": "^5.0.5",
     "dotenv": "^17.2.3",
     "iyzipay": "^2.0.64",
     "mysql2": "^3.15.3",

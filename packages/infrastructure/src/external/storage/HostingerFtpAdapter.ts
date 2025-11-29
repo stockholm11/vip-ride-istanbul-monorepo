@@ -1,4 +1,4 @@
-import Client from "ssh2-sftp-client";
+import { Client as FtpClient } from "basic-ftp";
 import { env } from "../../config/env";
 import fs from "fs";
 import path from "path";
@@ -6,18 +6,16 @@ import path from "path";
 export type UploadType = "vehicle" | "tour";
 
 export class HostingerFtpAdapter {
-  private client: Client;
   private basePath: string;
   private baseUrl: string;
 
   constructor() {
-    this.client = new Client();
     this.basePath = env.hostingerFtpPath || "/public_html/uploads";
     this.baseUrl = env.hostingerBaseUrl || "";
   }
 
   /**
-   * Upload a file to Hostinger via SFTP
+   * Upload a file to Hostinger via FTP
    * @param localFilePath - Path to the local file (temporary file on Render)
    * @param uploadType - Type of upload (vehicle or tour)
    * @returns Public URL of the uploaded file
@@ -38,27 +36,36 @@ export class HostingerFtpAdapter {
     const filename = path.basename(localFilePath);
     const remotePath = path.join(remoteDir, filename).replace(/\\/g, "/");
 
+    const client = new FtpClient();
+    client.ftp.verbose = false; // Disable verbose logging
+
     try {
-      // Connect to SFTP server
-      await this.client.connect({
+      // Connect to FTP server
+      await client.access({
         host: env.hostingerFtpHost,
-        port: env.hostingerFtpPort,
-        username: env.hostingerFtpUsername,
+        port: env.hostingerFtpPort || 21,
+        user: env.hostingerFtpUsername,
         password: env.hostingerFtpPassword,
-        timeout: 60000, // 60 seconds (increased for slow connections)
-        readyTimeout: 60000, // 60 seconds for handshake
-        retries: 2, // Retry connection 2 times
-        retry_factor: 2, // Exponential backoff
+        secure: false, // Use plain FTP (not FTPS)
+        secureOptions: undefined,
       });
 
       // Ensure target directory exists
-      const dirExists = await this.client.exists(remoteDir);
-      if (!dirExists) {
-        await this.client.mkdir(remoteDir, true); // true = recursive
+      try {
+        await client.ensureDir(remoteDir);
+      } catch (error) {
+        // If directory creation fails, try to create parent directories
+        const parentDir = path.dirname(remoteDir);
+        if (parentDir !== remoteDir) {
+          await client.ensureDir(parentDir);
+          await client.ensureDir(remoteDir);
+        } else {
+          throw error;
+        }
       }
 
       // Upload file
-      await this.client.put(localFilePath, remotePath);
+      await client.uploadFrom(localFilePath, remotePath);
 
       // Construct public URL
       const publicUrl = `${this.baseUrl}/uploads/${targetDir}/${filename}`;
@@ -69,12 +76,10 @@ export class HostingerFtpAdapter {
       throw new Error(`Failed to upload file to Hostinger: ${errorMessage}`);
     } finally {
       // Always close connection
-      if (this.client) {
-        try {
-          await this.client.end();
-        } catch (error) {
-          // Ignore errors when closing connection
-        }
+      try {
+        client.close();
+      } catch (error) {
+        // Ignore errors when closing connection
       }
     }
   }
