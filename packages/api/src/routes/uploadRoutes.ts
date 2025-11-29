@@ -2,7 +2,7 @@ import { Router, type Request, type Response, RequestHandler } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { HostingerFtpAdapter, UploadType } from "../../../infrastructure/src/external/storage/HostingerFtpAdapter";
+import { HostingerFtpAdapter, UploadType } from "@vip-ride/infrastructure/external/storage/HostingerFtpAdapter";
 
 const router: Router = Router();
 

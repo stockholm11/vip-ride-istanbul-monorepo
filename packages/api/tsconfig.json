@@ -5,6 +5,7 @@
     "module": "commonjs",
     "declaration": true,
     "outDir": "dist",
+    "rootDir": "src",
     "baseUrl": ".",
     "paths": {
       "@vip-ride/domain/*": ["../domain/dist/*"],
