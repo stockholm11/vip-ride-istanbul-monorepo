@@ -45,7 +45,9 @@ export class HostingerFtpAdapter {
 
     // Determine target directory based on upload type
     const targetDir = uploadType === "vehicle" ? "vehicles" : "tours";
-    const remoteDir = path.join(this.basePath, targetDir).replace(/\\/g, "/");
+    // basePath is now /home/u733725607/domains/viprideistanbulairport.com/public_html
+    // We need to add "uploads" and then the target directory
+    const remoteDir = path.join(this.basePath, "uploads", targetDir).replace(/\\/g, "/");
 
     // Generate unique filename
     const filename = path.basename(localFilePath);
@@ -114,6 +116,16 @@ export class HostingerFtpAdapter {
       });
       await client.uploadFrom(localFilePath, filename);
       console.log("[FTP] File upload command completed");
+
+      // Set file permissions to 644 (readable by web server)
+      try {
+        console.log("[FTP] Setting file permissions to 644 (rw-r--r--)");
+        await client.send("SITE CHMOD 644 " + filename);
+        console.log("[FTP] File permissions set successfully");
+      } catch (chmodError) {
+        console.warn("[FTP] Warning: Could not set file permissions:", chmodError);
+        // Continue even if chmod fails - some FTP servers handle this automatically
+      }
 
       // Verify file was uploaded by listing directory
       try {
