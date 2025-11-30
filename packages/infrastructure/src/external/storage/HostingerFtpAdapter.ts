@@ -11,7 +11,8 @@ export class HostingerFtpAdapter {
 
   constructor() {
     // HOSTINGER_FTP_PATH should be the absolute path on the FTP server
-    // Example: /home/u733725607/domains/viprideistanbulairport.com/public_html/uploads
+    // If FTP account's home directory is already /public_html/uploads, set this to empty or "/"
+    // If FTP account's home directory is /public_html, set this to /home/u733725607/domains/viprideistanbulairport.com/public_html
     this.basePath = env.hostingerFtpPath || "/public_html/uploads";
     // HOSTINGER_BASE_URL should be the public domain URL
     // Example: https://viprideistanbulairport.com
@@ -45,9 +46,22 @@ export class HostingerFtpAdapter {
 
     // Determine target directory based on upload type
     const targetDir = uploadType === "vehicle" ? "vehicles" : "tours";
-    // basePath is now /home/u733725607/domains/viprideistanbulairport.com/public_html
-    // We need to add "uploads" and then the target directory
-    const remoteDir = path.join(this.basePath, "uploads", targetDir).replace(/\\/g, "/");
+    
+    // Calculate remote directory based on basePath
+    // If basePath ends with /uploads, we're already in uploads directory, just add targetDir
+    // If basePath is /public_html, we need to add /uploads/targetDir
+    // If basePath is empty or "/", FTP account home is already in uploads, just add targetDir
+    let remoteDir: string;
+    if (!this.basePath || this.basePath === "/" || this.basePath.endsWith("/uploads")) {
+      // FTP account home is already in uploads directory
+      remoteDir = path.join(this.basePath || "/", targetDir).replace(/\\/g, "/");
+    } else if (this.basePath.endsWith("/public_html")) {
+      // FTP account home is in public_html, need to add uploads
+      remoteDir = path.join(this.basePath, "uploads", targetDir).replace(/\\/g, "/");
+    } else {
+      // Use basePath as-is and add targetDir
+      remoteDir = path.join(this.basePath, targetDir).replace(/\\/g, "/");
+    }
 
     // Generate unique filename
     const filename = path.basename(localFilePath);
@@ -116,16 +130,6 @@ export class HostingerFtpAdapter {
       });
       await client.uploadFrom(localFilePath, filename);
       console.log("[FTP] File upload command completed");
-
-      // Set file permissions to 644 (readable by web server)
-      try {
-        console.log("[FTP] Setting file permissions to 644 (rw-r--r--)");
-        await client.send("SITE CHMOD 644 " + filename);
-        console.log("[FTP] File permissions set successfully");
-      } catch (chmodError) {
-        console.warn("[FTP] Warning: Could not set file permissions:", chmodError);
-        // Continue even if chmod fails - some FTP servers handle this automatically
-      }
 
       // Verify file was uploaded by listing directory
       try {
