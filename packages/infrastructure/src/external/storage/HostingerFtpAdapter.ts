@@ -99,10 +99,39 @@ export class HostingerFtpAdapter {
         }
       }
 
-      // Upload file
-      console.log("[FTP] Uploading file:", { localFilePath, remotePath });
-      await client.uploadFrom(localFilePath, remotePath);
-      console.log("[FTP] File uploaded successfully");
+      // Change to target directory before uploading
+      console.log("[FTP] Changing to directory:", remoteDir);
+      await client.cd(remoteDir);
+      const currentDir = await client.pwd();
+      console.log("[FTP] Current directory after cd:", currentDir);
+      
+      // Upload file using relative path (just filename)
+      console.log("[FTP] Uploading file:", { 
+        localFilePath, 
+        remotePath,
+        filename,
+        uploadingTo: filename 
+      });
+      await client.uploadFrom(localFilePath, filename);
+      console.log("[FTP] File upload command completed");
+
+      // Verify file was uploaded by listing directory
+      try {
+        const fileList = await client.list(".");
+        const uploadedFile = fileList.find((file) => file.name === filename);
+        if (uploadedFile) {
+          console.log("[FTP] File verified in directory:", {
+            filename: uploadedFile.name,
+            size: uploadedFile.size,
+            modified: uploadedFile.modifiedAt,
+          });
+        } else {
+          console.warn("[FTP] WARNING: File not found in directory listing after upload!");
+          console.log("[FTP] Directory contents:", fileList.map((f) => f.name));
+        }
+      } catch (listError) {
+        console.error("[FTP] Error listing directory to verify upload:", listError);
+      }
 
       // Construct public URL
       // Ensure baseUrl doesn't have trailing slash and path starts with /
