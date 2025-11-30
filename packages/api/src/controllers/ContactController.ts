@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { SendContactEmailUseCase } from "@vip-ride/application/use-cases/notification/SendContactEmail";
 
 export class ContactController {
-  constructor(private readonly sendContactEmailUseCase: SendContactEmailUseCase) {}
+  constructor(private readonly sendContactEmailUseCase: SendContactEmailUseCase | undefined) {}
 
   sendMessage = async (req: Request, res: Response) => {
     try {
@@ -32,6 +32,13 @@ export class ContactController {
       }
 
       // Send email
+      if (!this.sendContactEmailUseCase) {
+        console.warn("[ContactController] Email functionality is disabled - email adapter not initialized");
+        return res.status(503).json({ 
+          error: "Email service is currently unavailable. Please try again later or contact us directly." 
+        });
+      }
+
       await this.sendContactEmailUseCase.execute({
         name: name.trim(),
         email: email.trim(),
@@ -39,6 +46,7 @@ export class ContactController {
         message: message.trim(),
       });
 
+      console.log("[ContactController] ✅ Contact email sent successfully from:", email.trim());
       return res.json({ 
         success: true, 
         message: "Your message has been sent successfully. We will get back to you soon." 

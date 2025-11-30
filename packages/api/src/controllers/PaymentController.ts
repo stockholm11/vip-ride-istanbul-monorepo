@@ -92,12 +92,14 @@ export class PaymentController {
             // Send confirmation email asynchronously (don't block the response)
             const emailUseCase = this.sendBookingEmailUseCase;
             if (emailUseCase) {
+              console.log("[PaymentController] Attempting to send confirmation email for reservation:", reservationId);
               // Fire and forget - don't await to avoid blocking the response
               (async () => {
                 try {
                   const reservation = await reservationRepository.findById(reservationId.toString());
                   if (reservation) {
                     const reservationData = reservation.data;
+                    console.log("[PaymentController] Reservation found, preparing email to:", reservationData.userEmail);
                     // Get reservation type from data (it should be in the data object)
                     const reservationType = (reservationData as any).reservationType || "rezervasyon";
                     const typeLabel = reservationType === "tour" ? "Tur" : reservationType === "transfer" ? "Transfer" : reservationType === "chauffeur" ? "Şoför Hizmeti" : "Rezervasyon";
@@ -120,6 +122,7 @@ export class PaymentController {
                       `;
                     }
 
+                    console.log("[PaymentController] Executing email use case...");
                     await emailUseCase.execute({
                       to: reservationData.userEmail,
                       subject: `${typeLabel} Rezervasyon Onayı - VIP Ride Istanbul`,
@@ -149,13 +152,22 @@ export class PaymentController {
                         </div>
                       `,
                     });
-                    console.log("[PaymentController] Confirmation email sent to:", reservationData.userEmail);
+                    console.log("[PaymentController] ✅ Confirmation email sent successfully to:", reservationData.userEmail);
+                  } else {
+                    console.warn("[PaymentController] ⚠️ Reservation not found for ID:", reservationId);
                   }
                 } catch (emailError) {
-                  console.error("[PaymentController] Failed to send confirmation email:", emailError);
+                  const errorMessage = emailError instanceof Error ? emailError.message : String(emailError);
+                  const errorStack = emailError instanceof Error ? emailError.stack : undefined;
+                  console.error("[PaymentController] ❌ Failed to send confirmation email:", errorMessage);
+                  if (errorStack) {
+                    console.error("[PaymentController] Email error stack:", errorStack);
+                  }
                   // Don't fail the payment if email fails
                 }
               })();
+            } else {
+              console.warn("[PaymentController] ⚠️ Email use case not available - email functionality disabled");
             }
           } catch (updateError) {
             console.error("[PaymentController] Failed to update payment status to paid:", updateError);

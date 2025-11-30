@@ -81,15 +81,26 @@ const tourRepository = new TourRepository();
 const tourCategoryRepository = new TourCategoryRepository();
 const addOnRepository = new AddOnRepository();
 const featuredTransferRepository = new FeaturedTransferRepository();
-const emailAdapter = new NodemailerAdapter();
+
+// Initialize email adapter with error handling
+let emailAdapter: NodemailerAdapter | null = null;
+try {
+  emailAdapter = new NodemailerAdapter();
+  console.log("[Server] Email adapter initialized successfully");
+} catch (error) {
+  console.error("[Server] Failed to initialize email adapter:", error instanceof Error ? error.message : String(error));
+  console.warn("[Server] Email functionality will be disabled. Please set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD environment variables.");
+}
+
 const paymentAdapter = new IyzicoAdapter();
 
 const createReservationUseCase = new CreateReservationUseCase(reservationRepository, addOnRepository);
 const getReservationsUseCase = new GetReservationsUseCase(reservationRepository);
-const sendBookingEmailUseCase = new SendBookingEmailUseCase(emailAdapter);
-const sendContactEmailUseCase = new SendContactEmailUseCase(emailAdapter);
+const sendBookingEmailUseCase = emailAdapter ? new SendBookingEmailUseCase(emailAdapter) : undefined;
+const sendContactEmailUseCase = emailAdapter ? new SendContactEmailUseCase(emailAdapter) : undefined;
 const processPaymentUseCase = new ProcessPaymentUseCase(paymentAdapter);
 
+// ContactController can handle undefined sendContactEmailUseCase
 const contactController = new ContactController(sendContactEmailUseCase);
 
 const getAdminVehiclesUseCase = new GetAdminVehiclesUseCase(vehicleRepository);
