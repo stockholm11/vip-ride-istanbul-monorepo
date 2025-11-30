@@ -78,14 +78,11 @@ const routeHandler = async (req: Request, res: Response) => {
 
     // Check if FTP is configured
     const isFtpConfigured = ftpAdapter.isConfigured();
-    console.log("[UPLOAD] FTP configured:", isFtpConfigured);
     
     if (isFtpConfigured) {
-      console.log("[UPLOAD] Attempting FTP upload to Hostinger...");
       try {
         // Upload to Hostinger via FTP
         url = await ftpAdapter.uploadFile(req.file.path, uploadType as UploadType);
-        console.log("[UPLOAD] FTP upload successful, URL:", url);
         
         // Clean up temporary file after successful upload
         fs.unlinkSync(req.file.path);
@@ -103,17 +100,14 @@ const routeHandler = async (req: Request, res: Response) => {
                            (req.get("host") ? (req.protocol + "://" + req.get("host")) : "");
         
         url = `${apiBaseUrl}/uploads/${req.file.filename}`;
-        console.log("[UPLOAD] Using Render storage URL:", url);
       }
     } else {
       // FTP not configured, use Render storage
-      console.log("[UPLOAD] FTP not configured, using Render storage");
       const apiBaseUrl = process.env.API_BASE_URL || 
                          process.env.RENDER_EXTERNAL_URL || 
                          (req.get("host") ? (req.protocol + "://" + req.get("host")) : "");
       
       url = `${apiBaseUrl}/uploads/${req.file.filename}`;
-      console.log("[UPLOAD] Render storage URL:", url);
     }
 
     console.log("[UPLOAD] Upload completed successfully, returning URL:", url);

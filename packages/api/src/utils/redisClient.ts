@@ -4,15 +4,34 @@ let redisClient: RedisClientType | null = null;
 let redisConnectionAttempted = false;
 let redisConnectionFailed = false;
 
+function resetConnectionState() {
+  redisClient = null;
+  redisConnectionAttempted = false;
+  redisConnectionFailed = false;
+}
+
 export async function getRedisClient(): Promise<RedisClientType | null> {
   // If Redis connection was already attempted and failed, don't retry
   if (redisConnectionFailed) {
     return null;
   }
 
-  // If client already exists and is connected, return it
+  // If client already exists, check if it's still connected
   if (redisClient) {
-    return redisClient;
+    // Check if client is still open/ready
+    try {
+      // Ping to check if connection is alive
+      await Promise.race([
+        redisClient.ping(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Redis ping timeout")), 1000)
+        ),
+      ]);
+      return redisClient;
+    } catch (error) {
+      // Connection is dead, reset and try to reconnect
+      resetConnectionState();
+    }
   }
 
   // If connection was already attempted but client is null, don't retry
@@ -33,16 +52,20 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
     }) as RedisClientType;
 
     redisClient.on("error", (err) => {
-      // Only log first error, then mark as failed
+      // Log error and reset connection state
       if (!redisConnectionFailed) {
         console.warn("Redis Client Error (caching disabled):", err.message);
-        redisConnectionFailed = true;
-        redisClient = null;
       }
+      resetConnectionState();
     });
 
-    redisClient.on("connect", () => {
-      console.log("Redis Client Connected");
+    redisClient.on("end", () => {
+      // Socket closed, reset connection state
+      resetConnectionState();
+    });
+
+    redisClient.on("ready", () => {
+      // Client is ready to use
       redisConnectionFailed = false;
     });
 
@@ -87,6 +110,11 @@ export async function getCachedRoute(cacheKey: string): Promise<{
     }
     return null;
   } catch (error) {
+    // If error indicates connection is lost, reset connection state
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes("Socket closed") || errorMessage.includes("Connection lost")) {
+      resetConnectionState();
+    }
     // Silently fail - Redis is optional
     return null;
   }
@@ -113,6 +141,11 @@ export async function setCachedRoute(
       new Promise((_, reject) => setTimeout(() => reject(new Error("Redis set timeout")), 1000)), // 1 second timeout
     ]);
   } catch (error) {
+    // If error indicates connection is lost, reset connection state
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes("Socket closed") || errorMessage.includes("Connection lost")) {
+      resetConnectionState();
+    }
     // Silently fail - Redis is optional, caching is not critical
   }
 }
