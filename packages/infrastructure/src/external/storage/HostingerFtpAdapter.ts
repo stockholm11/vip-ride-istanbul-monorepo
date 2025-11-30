@@ -48,18 +48,25 @@ export class HostingerFtpAdapter {
     const targetDir = uploadType === "vehicle" ? "vehicles" : "tours";
     
     // Calculate remote directory based on basePath
-    // If basePath ends with /uploads, we're already in uploads directory, just add targetDir
-    // If basePath ends with /public_html, we need to add /uploads/targetDir
-    // If basePath is empty or "/", FTP account home is already in uploads, just add targetDir
+    // Default FTP account (u733725607) home directory is /home/u733725607/domains/viprideistanbulairport.com
+    // Files should be uploaded to: /home/u733725607/domains/viprideistanbulairport.com/public_html/uploads/vehicles
+    // This is accessible via web as: https://viprideistanbulairport.com/uploads/vehicles/...
+    
     let remoteDir: string;
-    if (!this.basePath || this.basePath === "/" || this.basePath.endsWith("/uploads")) {
-      // FTP account home is already in uploads directory
-      remoteDir = path.join(this.basePath || "/", targetDir).replace(/\\/g, "/");
+    
+    // If basePath is empty or "/", assume we're starting from FTP home directory
+    if (!this.basePath || this.basePath === "/") {
+      // FTP home is /home/u733725607/domains/viprideistanbulairport.com
+      // Need to go to public_html/uploads/targetDir
+      remoteDir = `/home/u733725607/domains/viprideistanbulairport.com/public_html/uploads/${targetDir}`;
+    } else if (this.basePath.endsWith("/uploads")) {
+      // basePath already includes /uploads, just add targetDir
+      remoteDir = path.join(this.basePath, targetDir).replace(/\\/g, "/");
     } else if (this.basePath.endsWith("/public_html") || this.basePath.includes("/public_html")) {
-      // FTP account home is in public_html (or path contains public_html), need to add uploads
+      // basePath ends with /public_html, need to add uploads/targetDir
       remoteDir = path.join(this.basePath, "uploads", targetDir).replace(/\\/g, "/");
     } else {
-      // Use basePath as-is and add targetDir
+      // Use basePath as-is and add targetDir (fallback)
       remoteDir = path.join(this.basePath, targetDir).replace(/\\/g, "/");
     }
 
@@ -96,6 +103,10 @@ export class HostingerFtpAdapter {
       });
       
       console.log("[FTP] Connected successfully");
+      
+      // Get current working directory after connection
+      const initialDir = await client.pwd();
+      console.log("[FTP] Initial FTP directory (pwd):", initialDir);
 
       // Ensure target directory exists
       console.log("[FTP] Ensuring directory exists:", remoteDir);
@@ -121,6 +132,11 @@ export class HostingerFtpAdapter {
       const currentDir = await client.pwd();
       console.log("[FTP] Current directory after cd:", currentDir);
       
+      // Verify we're in the correct directory
+      if (!currentDir.includes("public_html") && !currentDir.includes("uploads")) {
+        console.warn("[FTP] WARNING: Current directory doesn't seem to be in public_html/uploads!");
+      }
+      
       // Upload file using relative path (just filename)
       console.log("[FTP] Uploading file:", { 
         localFilePath, 
@@ -130,6 +146,16 @@ export class HostingerFtpAdapter {
       });
       await client.uploadFrom(localFilePath, filename);
       console.log("[FTP] File upload command completed");
+
+      // Set file permissions to 644 (readable by web server)
+      try {
+        console.log("[FTP] Setting file permissions to 644 (rw-r--r--)");
+        await client.send("SITE CHMOD 644 " + filename);
+        console.log("[FTP] File permissions set to 644");
+      } catch (chmodError) {
+        console.warn("[FTP] Warning: Could not set file permissions (this is usually OK):", chmodError);
+        // Continue even if chmod fails - some FTP servers handle this automatically
+      }
 
       // Verify file was uploaded by listing directory
       try {
