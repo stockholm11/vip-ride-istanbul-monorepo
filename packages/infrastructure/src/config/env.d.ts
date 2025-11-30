@@ -1,0 +1,23 @@
+export declare const env: {
+    dbHost: string;
+    dbUser: string;
+    dbPassword: string;
+    dbName: string;
+    iyziApiKey: string;
+    iyziSecretKey: string;
+    iyziBaseUrl: string;
+    frontendBaseUrl: string;
+    adminEmail: string;
+    adminPasswordHash: string;
+    jwtSecret: string;
+    emailHost: string;
+    emailPort: number;
+    emailUser: string;
+    emailPassword: string;
+    hostingerFtpHost: string;
+    hostingerFtpPort: number;
+    hostingerFtpUsername: string;
+    hostingerFtpPassword: string;
+    hostingerFtpPath: string;
+    hostingerBaseUrl: string;
+};

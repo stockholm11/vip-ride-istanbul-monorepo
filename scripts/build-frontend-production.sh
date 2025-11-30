@@ -41,3 +41,4 @@ echo "   1. packages/web/dist klasöründeki dosyaları Hostinger'a yükleyin"
 echo "   2. .htaccess dosyasının yüklendiğinden emin olun"
 echo "   3. Environment variables'ı kontrol edin"
 
+

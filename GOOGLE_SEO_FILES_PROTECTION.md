@@ -138,3 +138,4 @@ Google Search Console'da site doğrulaması kaybolur.
 - [ ] Google Search Console'da site hala doğrulanmış
 - [ ] `index.html`'de Google meta tag var
 
+

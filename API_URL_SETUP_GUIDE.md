@@ -247,3 +247,4 @@ pnpm build
 - `packages/web/.env.example` - Environment variable örneği
 - `packages/web/vite.config.ts` - Vite konfigürasyonu
 
+
