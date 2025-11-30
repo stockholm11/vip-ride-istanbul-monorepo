@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "https://vip-ride-api.onrender.com",
   timeout: 30000, // 30 seconds for payment operations
   headers: {
     "Content-Type": "application/json",

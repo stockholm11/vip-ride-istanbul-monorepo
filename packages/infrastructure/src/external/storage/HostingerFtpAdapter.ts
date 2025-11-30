@@ -10,7 +10,11 @@ export class HostingerFtpAdapter {
   private baseUrl: string;
 
   constructor() {
+    // HOSTINGER_FTP_PATH should be the absolute path on the FTP server
+    // Example: /home/u733725607/domains/viprideistanbulairport.com/public_html/uploads
     this.basePath = env.hostingerFtpPath || "/public_html/uploads";
+    // HOSTINGER_BASE_URL should be the public domain URL
+    // Example: https://viprideistanbulairport.com
     this.baseUrl = env.hostingerBaseUrl || "";
   }
 
@@ -68,7 +72,9 @@ export class HostingerFtpAdapter {
       await client.uploadFrom(localFilePath, remotePath);
 
       // Construct public URL
-      const publicUrl = `${this.baseUrl}/uploads/${targetDir}/${filename}`;
+      // Ensure baseUrl doesn't have trailing slash and path starts with /
+      const cleanBaseUrl = this.baseUrl.replace(/\/$/, "");
+      const publicUrl = `${cleanBaseUrl}/uploads/${targetDir}/${filename}`;
 
       return publicUrl;
     } catch (error) {
