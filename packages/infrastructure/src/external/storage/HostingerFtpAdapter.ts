@@ -49,14 +49,14 @@ export class HostingerFtpAdapter {
     
     // Calculate remote directory based on basePath
     // If basePath ends with /uploads, we're already in uploads directory, just add targetDir
-    // If basePath is /public_html, we need to add /uploads/targetDir
+    // If basePath ends with /public_html, we need to add /uploads/targetDir
     // If basePath is empty or "/", FTP account home is already in uploads, just add targetDir
     let remoteDir: string;
     if (!this.basePath || this.basePath === "/" || this.basePath.endsWith("/uploads")) {
       // FTP account home is already in uploads directory
       remoteDir = path.join(this.basePath || "/", targetDir).replace(/\\/g, "/");
-    } else if (this.basePath.endsWith("/public_html")) {
-      // FTP account home is in public_html, need to add uploads
+    } else if (this.basePath.endsWith("/public_html") || this.basePath.includes("/public_html")) {
+      // FTP account home is in public_html (or path contains public_html), need to add uploads
       remoteDir = path.join(this.basePath, "uploads", targetDir).replace(/\\/g, "/");
     } else {
       // Use basePath as-is and add targetDir
