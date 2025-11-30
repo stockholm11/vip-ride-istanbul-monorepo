@@ -45,17 +45,30 @@ const upload = multer({
 // Apply authentication middleware if available
 const uploadHandler = upload.single("file");
 const routeHandler = async (req: Request, res: Response) => {
+  console.log("[UPLOAD] Upload request received");
+  
   if (!req.file) {
+    console.error("[UPLOAD] No file in request");
     return res.status(400).json({ message: "No file uploaded" });
   }
+
+  console.log("[UPLOAD] File received:", {
+    filename: req.file.filename,
+    originalname: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size,
+    path: req.file.path,
+  });
 
   try {
     // Get upload type from query parameter (vehicle or tour)
     const uploadType = (req.query.type as string)?.toLowerCase();
+    console.log("[UPLOAD] Upload type:", uploadType);
     
     if (!uploadType || (uploadType !== "vehicle" && uploadType !== "tour")) {
       // Clean up temporary file
       fs.unlinkSync(req.file.path);
+      console.error("[UPLOAD] Invalid upload type:", uploadType);
       return res.status(400).json({ 
         message: "Invalid upload type. Use ?type=vehicle or ?type=tour" 
       });
@@ -64,16 +77,25 @@ const routeHandler = async (req: Request, res: Response) => {
     let url: string;
 
     // Check if FTP is configured
-    if (ftpAdapter.isConfigured()) {
+    const isFtpConfigured = ftpAdapter.isConfigured();
+    console.log("[UPLOAD] FTP configured:", isFtpConfigured);
+    
+    if (isFtpConfigured) {
+      console.log("[UPLOAD] Attempting FTP upload to Hostinger...");
       try {
         // Upload to Hostinger via FTP
         url = await ftpAdapter.uploadFile(req.file.path, uploadType as UploadType);
+        console.log("[UPLOAD] FTP upload successful, URL:", url);
         
         // Clean up temporary file after successful upload
         fs.unlinkSync(req.file.path);
       } catch (ftpError) {
         // If FTP upload fails, fall back to Render storage
-        console.error("FTP upload failed, falling back to Render storage:", ftpError);
+        console.error("[UPLOAD] FTP upload failed, falling back to Render storage:", ftpError);
+        console.error("[UPLOAD] FTP error details:", {
+          message: ftpError instanceof Error ? ftpError.message : String(ftpError),
+          stack: ftpError instanceof Error ? ftpError.stack : undefined,
+        });
         
         // Get API base URL from environment or construct from request
         const apiBaseUrl = process.env.API_BASE_URL || 
@@ -81,16 +103,20 @@ const routeHandler = async (req: Request, res: Response) => {
                            (req.get("host") ? (req.protocol + "://" + req.get("host")) : "");
         
         url = `${apiBaseUrl}/uploads/${req.file.filename}`;
+        console.log("[UPLOAD] Using Render storage URL:", url);
       }
     } else {
       // FTP not configured, use Render storage
+      console.log("[UPLOAD] FTP not configured, using Render storage");
       const apiBaseUrl = process.env.API_BASE_URL || 
                          process.env.RENDER_EXTERNAL_URL || 
                          (req.get("host") ? (req.protocol + "://" + req.get("host")) : "");
       
       url = `${apiBaseUrl}/uploads/${req.file.filename}`;
+      console.log("[UPLOAD] Render storage URL:", url);
     }
 
+    console.log("[UPLOAD] Upload completed successfully, returning URL:", url);
     return res.json({ url });
   } catch (error) {
     // Clean up temporary file on error
