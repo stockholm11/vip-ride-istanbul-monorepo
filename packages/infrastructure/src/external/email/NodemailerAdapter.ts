@@ -23,6 +23,10 @@ export class NodemailerAdapter implements IEmailSender {
       },
       // IPv4 kullanımını zorla (IPv6 sorunlarını önlemek için)
       family: 4,
+      // Increase timeout settings for Render/SMTP connections
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000, // 10 seconds
+      socketTimeout: 10000, // 10 seconds
     } as nodemailer.TransportOptions);
   }
 
