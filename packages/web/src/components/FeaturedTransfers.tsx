@@ -159,10 +159,9 @@ export default function FeaturedTransfers({
         vehicles.find((vehicle) => vehicle.slug === item.vehicleSlug) ||
         vehicles.find((vehicle) => vehicle.id.toString() === item.vehicleId);
 
-      const imageSource =
-        item.vehicleImage ||
-        matchedVehicle?.mainImage ||
-        defaultVehicleImage;
+      // Use vehicle's mainImage directly since it's already properly formatted
+      // The vehicle image comes from the database and is correctly processed by PublicVehicleController
+      const imageSource = matchedVehicle?.mainImage || defaultVehicleImage;
 
       const fromLocationId = slugifyLocation(item.fromLocation);
       const toLocationId = slugifyLocation(item.toLocation);

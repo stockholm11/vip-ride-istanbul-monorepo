@@ -23,12 +23,8 @@ interface FeaturedTransferRow extends RowDataPacket {
   vehicleCapacity: number | null;
 }
 
-const normalizeImagePath = (value: string | null): string | null => {
-  if (!value) {
-    return null;
-  }
-  return value.startsWith("/") ? value : `/${value}`;
-};
+// Don't normalize image path here - let the controller handle URL construction
+// This way it uses the same logic as PublicVehicleController
 
 const BASE_SELECT = `
   SELECT
@@ -146,7 +142,8 @@ export class FeaturedTransferRepository implements IFeaturedTransferRepository {
       vehicleId: row.vehicleId.toString(),
       vehicleName: row.vehicleName,
       vehicleSlug: row.vehicleSlug,
-      vehicleImage: normalizeImagePath(row.vehicleImageUrl),
+      // Pass vehicleImageUrl as-is, let controller handle URL construction (same as PublicVehicleController)
+      vehicleImage: row.vehicleImageUrl,
       passengerCapacity: row.vehicleCapacity,
       luggageCapacity:
         row.vehicleCapacity != null ? Math.max(1, Math.floor(row.vehicleCapacity / 2)) : null,

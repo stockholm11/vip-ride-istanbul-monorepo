@@ -40,14 +40,21 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
   }
 
   redisConnectionAttempted = true;
-  const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+  let redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+  
+  // For Upstash Redis (TLS enabled), ensure rediss:// protocol is used
+  // If URL contains upstash.io and uses redis://, convert to rediss://
+  if (redisUrl.includes("upstash.io") && redisUrl.startsWith("redis://")) {
+    redisUrl = redisUrl.replace("redis://", "rediss://");
+  }
   
   try {
     redisClient = createClient({
       url: redisUrl,
       socket: {
-        connectTimeout: 2000, // 2 second connection timeout
+        connectTimeout: 5000, // 5 second connection timeout (increased for TLS handshake)
         reconnectStrategy: false, // Don't auto-reconnect
+        // TLS is automatically handled by rediss:// protocol
       },
     }) as RedisClientType;
 

@@ -12,10 +12,41 @@ export class FeaturedTransferController {
     private readonly deleteFeaturedTransferUseCase: DeleteFeaturedTransferUseCase
   ) {}
 
-  listPublic = async (_req: Request, res: Response) => {
+  listPublic = async (req: Request, res: Response) => {
     try {
       const transfers = await this.getFeaturedTransfersUseCase.execute({ activeOnly: true });
-      return res.json(transfers);
+      // Convert vehicleImage to full URL, same logic as PublicVehicleController
+      const apiBaseUrl = process.env.API_BASE_URL || 
+                         process.env.RENDER_EXTERNAL_URL || 
+                         (req.get("host") ? `${req.protocol}://${req.get("host")}` : "");
+      
+      const transfersWithFullUrls = transfers.map((transfer) => {
+        if (transfer.vehicleImage) {
+          // Clean duplicate URLs first (e.g., https://domain.com/https://domain.com/path)
+          let cleanedUrl = transfer.vehicleImage;
+          const baseUrlMatch = cleanedUrl.match(/^(https?:\/\/[^\/]+)/);
+          if (baseUrlMatch) {
+            const baseUrl = baseUrlMatch[1];
+            const baseUrlIndex = cleanedUrl.indexOf(baseUrl);
+            const secondBaseUrlIndex = cleanedUrl.indexOf(baseUrl, baseUrlIndex + baseUrl.length);
+            if (secondBaseUrlIndex !== -1) {
+              // Remove duplicate base URL
+              cleanedUrl = cleanedUrl.substring(0, secondBaseUrlIndex) + cleanedUrl.substring(secondBaseUrlIndex + baseUrl.length);
+            }
+          }
+          
+          // If it's already a full URL (after cleaning), use as is
+          if (cleanedUrl.startsWith("http://") || cleanedUrl.startsWith("https://")) {
+            transfer.vehicleImage = cleanedUrl;
+          } else {
+            // Relative path - convert to full URL (same as PublicVehicleController)
+            const relativePath = cleanedUrl.startsWith("/") ? cleanedUrl : `/${cleanedUrl}`;
+            transfer.vehicleImage = apiBaseUrl ? `${apiBaseUrl}${relativePath}` : relativePath;
+          }
+        }
+        return transfer;
+      });
+      return res.json(transfersWithFullUrls);
     } catch (error) {
       console.error("[FeaturedTransferController][listPublic] error:", error);
       return res.status(500).json({ error: "Failed to fetch featured transfers" });
