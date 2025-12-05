@@ -5,15 +5,15 @@ REM Example: scripts\build-frontend-production.bat https://api.example.com
 
 setlocal enabledelayedexpansion
 
-REM Get API URL from argument or environment variable
+REM Get API URL from argument, environment variable, or use default Render URL
 if "%~1"=="" (
     if defined VITE_API_URL (
         set "API_URL=!VITE_API_URL!"
     ) else (
-        echo ❌ Error: VITE_API_URL is required
-        echo Usage: scripts\build-frontend-production.bat [API_URL]
-        echo    or: set VITE_API_URL=https://api.example.com ^&^& scripts\build-frontend-production.bat
-        exit /b 1
+        REM Default to Render backend URL
+        set "API_URL=https://vip-ride-api.onrender.com"
+        echo ℹ️  No API URL provided, using default: !API_URL!
+        echo    To use a different URL, pass it as argument or set VITE_API_URL
     )
 ) else (
     set "API_URL=%~1"
