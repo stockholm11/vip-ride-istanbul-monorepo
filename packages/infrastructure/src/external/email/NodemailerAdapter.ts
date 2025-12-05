@@ -13,17 +13,21 @@ export class NodemailerAdapter implements IEmailSender {
       );
     }
 
-    // Create transporter for Hostinger SMTP on port 587 with STARTTLS
+    // Create transporter for BREVO SMTP
+    // Support both port 587 (STARTTLS) and 465 (SSL)
+    const port = Number(env.emailPort);
+    const isSecure = port === 465;
+    
     this.transporter = nodemailer.createTransport({
       host: env.emailHost,
-      port: Number(env.emailPort), // 587
-      secure: false,               // TLS STARTTLS mode
+      port: port,
+      secure: isSecure, // true for 465 (SSL), false for 587 (STARTTLS)
       auth: {
         user: env.emailUser,
         pass: env.emailPassword,
       },
       tls: {
-        rejectUnauthorized: false, // Hostinger sometimes returns legacy cert chains
+        rejectUnauthorized: false, // BREVO sometimes returns legacy cert chains
       },
       connectionTimeout: 30000,
       socketTimeout: 30000,
@@ -44,9 +48,16 @@ export class NodemailerAdapter implements IEmailSender {
       console.log("[NodemailerAdapter] Sending email to:", to, "from:", env.emailUser);
       console.log("[NodemailerAdapter] SMTP server:", env.emailHost, "port:", env.emailPort);
       
+      // Use EMAIL_FROM_ADDRESS if provided, otherwise fall back to EMAIL_USER
+      const fromAddress = env.emailFromAddress || env.emailUser;
+      // Format: "From Name" <email@domain.com>
+      const from = env.emailFromName 
+        ? `"${env.emailFromName}" <${fromAddress}>`
+        : fromAddress;
+
       const startTime = Date.now();
       const result = await this.transporter.sendMail({
-        from: env.emailUser,
+        from,
         to,
         subject,
         html,
