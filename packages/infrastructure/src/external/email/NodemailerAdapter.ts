@@ -13,6 +13,8 @@ export class NodemailerAdapter implements IEmailSender {
       );
     }
 
+    // Create transporter without pooling for better reliability
+    // Pooling can cause issues with dead connections
     this.transporter = nodemailer.createTransport({
       host: env.emailHost,
       port: env.emailPort,
@@ -27,10 +29,10 @@ export class NodemailerAdapter implements IEmailSender {
       connectionTimeout: 30000, // 30 seconds
       greetingTimeout: 30000, // 30 seconds
       socketTimeout: 30000, // 30 seconds
-      // Additional options for better reliability
-      pool: true, // Use connection pooling
-      maxConnections: 1,
-      maxMessages: 3,
+      // Disable pooling - create fresh connection each time for better reliability
+      pool: false,
+      // Require TLS for ports other than 465
+      requireTLS: env.emailPort !== 465,
     } as nodemailer.TransportOptions);
   }
 
@@ -44,12 +46,26 @@ export class NodemailerAdapter implements IEmailSender {
     }
 
     try {
-      await this.transporter.sendMail({
+      // Verify connection before sending (helps catch connection issues early)
+      // Note: verify() can be slow, but it helps identify connection problems
+      try {
+        await this.transporter.verify();
+        console.log("[NodemailerAdapter] SMTP connection verified successfully");
+      } catch (verifyError) {
+        console.warn("[NodemailerAdapter] SMTP verification failed, but attempting to send anyway:", verifyError instanceof Error ? verifyError.message : String(verifyError));
+        // Continue anyway - sometimes verify fails but send works
+      }
+
+      console.log("[NodemailerAdapter] Sending email to:", to);
+      const result = await this.transporter.sendMail({
         from: env.emailUser,
         to,
         subject,
         html,
       });
+
+      console.log("[NodemailerAdapter] ✅ Email sent successfully. MessageId:", result.messageId);
+      return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       const errorCode = (error as any)?.code;
@@ -64,6 +80,12 @@ export class NodemailerAdapter implements IEmailSender {
       if (errorCode === "EAUTH") {
         throw new Error(
           "SMTP authentication failed. Please check EMAIL_USER and EMAIL_PASSWORD settings."
+        );
+      }
+
+      if (errorCode === "ETIMEDOUT" || errorMessage.includes("timeout")) {
+        throw new Error(
+          `SMTP connection timeout. Server at ${env.emailHost}:${env.emailPort} is not responding.`
         );
       }
 

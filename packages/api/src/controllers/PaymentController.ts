@@ -94,6 +94,7 @@ export class PaymentController {
             if (emailUseCase) {
               console.log("[PaymentController] Attempting to send confirmation email for reservation:", reservationId);
               // Fire and forget - don't await to avoid blocking the response
+              // Add explicit error handler to catch unhandled rejections
               (async () => {
                 try {
                   const reservation = await reservationRepository.findById(reservationId.toString());
@@ -165,7 +166,15 @@ export class PaymentController {
                   }
                   // Don't fail the payment if email fails
                 }
-              })();
+              })().catch((unhandledError) => {
+                // Catch any unhandled promise rejections
+                const errorMessage = unhandledError instanceof Error ? unhandledError.message : String(unhandledError);
+                const errorStack = unhandledError instanceof Error ? unhandledError.stack : undefined;
+                console.error("[PaymentController] ❌ Unhandled error in email sending:", errorMessage);
+                if (errorStack) {
+                  console.error("[PaymentController] Unhandled error stack:", errorStack);
+                }
+              });
             } else {
               console.warn("[PaymentController] ⚠️ Email use case not available - email functionality disabled");
             }
