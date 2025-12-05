@@ -37,10 +37,6 @@ export class BrevoApiAdapter implements IEmailSender {
       : { email: fromAddress };
 
     try {
-      console.log("[BrevoApiAdapter] Sending email to:", to, "from:", fromAddress);
-      
-      const startTime = Date.now();
-      
       const response = await fetch(this.apiUrl, {
         method: "POST",
         headers: {
@@ -56,8 +52,6 @@ export class BrevoApiAdapter implements IEmailSender {
         }),
       });
 
-      const duration = Date.now() - startTime;
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
         throw new Error(
@@ -65,11 +59,10 @@ export class BrevoApiAdapter implements IEmailSender {
         );
       }
 
-      const result = await response.json();
-      console.log("[BrevoApiAdapter] ✅ Email sent successfully. MessageId:", result.messageId, "Duration:", duration + "ms");
+      await response.json();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      console.error("[BrevoApiAdapter] ❌ Failed to send email:", errorMessage);
+      console.error("[BrevoApiAdapter] Failed to send email:", errorMessage);
       throw new Error(`Failed to send email via BREVO API: ${errorMessage}`);
     }
   }

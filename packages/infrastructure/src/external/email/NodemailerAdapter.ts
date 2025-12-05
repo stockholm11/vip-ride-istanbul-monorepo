@@ -48,19 +48,12 @@ export class NodemailerAdapter implements IEmailSender {
       : fromAddress;
 
     try {
-      console.log("[NodemailerAdapter] Sending email to:", to, "from:", fromAddress);
-      console.log("[NodemailerAdapter] SMTP server:", env.emailHost, "port:", env.emailPort);
-      
-      const startTime = Date.now();
       const result = await this.transporter.sendMail({
         from,
         to,
         subject,
         html,
       });
-      const duration = Date.now() - startTime;
-
-      console.log("[NodemailerAdapter] ✅ Email sent successfully. MessageId:", result.messageId, "Duration:", duration + "ms");
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
