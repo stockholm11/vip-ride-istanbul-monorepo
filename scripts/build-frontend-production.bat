@@ -1,9 +1,13 @@
 @echo off
 REM Frontend production build script with VITE_API_URL
-REM Usage: scripts\build-frontend-production.bat [API_URL]
+REM Usage: Double-click to run, or: scripts\build-frontend-production.bat [API_URL]
 REM Example: scripts\build-frontend-production.bat https://api.example.com
 
 setlocal enabledelayedexpansion
+
+REM Change to script's directory, then go up to project root
+cd /d "%~dp0"
+cd ..
 
 REM Get API URL from argument, environment variable, or use default Render URL
 if "%~1"=="" (
