@@ -67,8 +67,6 @@ export class BrevoApiAdapter implements IEmailSender {
 
       const result = await response.json();
       console.log("[BrevoApiAdapter] ✅ Email sent successfully. MessageId:", result.messageId, "Duration:", duration + "ms");
-      
-      return { messageId: result.messageId || "sent" };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       console.error("[BrevoApiAdapter] ❌ Failed to send email:", errorMessage);
