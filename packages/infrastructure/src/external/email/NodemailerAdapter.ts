@@ -46,25 +46,19 @@ export class NodemailerAdapter implements IEmailSender {
     }
 
     try {
-      // Verify connection before sending (helps catch connection issues early)
-      // Note: verify() can be slow, but it helps identify connection problems
-      try {
-        await this.transporter.verify();
-        console.log("[NodemailerAdapter] SMTP connection verified successfully");
-      } catch (verifyError) {
-        console.warn("[NodemailerAdapter] SMTP verification failed, but attempting to send anyway:", verifyError instanceof Error ? verifyError.message : String(verifyError));
-        // Continue anyway - sometimes verify fails but send works
-      }
-
-      console.log("[NodemailerAdapter] Sending email to:", to);
+      console.log("[NodemailerAdapter] Sending email to:", to, "from:", env.emailUser);
+      console.log("[NodemailerAdapter] SMTP server:", env.emailHost, "port:", env.emailPort);
+      
+      const startTime = Date.now();
       const result = await this.transporter.sendMail({
         from: env.emailUser,
         to,
         subject,
         html,
       });
+      const duration = Date.now() - startTime;
 
-      console.log("[NodemailerAdapter] ✅ Email sent successfully. MessageId:", result.messageId);
+      console.log("[NodemailerAdapter] ✅ Email sent successfully. MessageId:", result.messageId, "Duration:", duration + "ms");
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
