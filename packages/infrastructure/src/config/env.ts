@@ -21,6 +21,8 @@ export const env = {
   emailPort: Number(process.env.EMAIL_PORT ?? 465),
   emailUser: process.env.EMAIL_USER ?? "",
   emailPassword: process.env.EMAIL_PASSWORD ?? "",
+  emailFromName: process.env.EMAIL_FROM_NAME ?? "VIP Ride Istanbul",
+  emailFromAddress: process.env.EMAIL_FROM_ADDRESS ?? "",
   hostingerFtpHost: process.env.HOSTINGER_FTP_HOST ?? "",
   hostingerFtpPort: Number(process.env.HOSTINGER_FTP_PORT ?? 22),
   hostingerFtpUsername: process.env.HOSTINGER_FTP_USERNAME ?? "",

@@ -20,6 +20,7 @@ import { TourCategoryRepository } from "@vip-ride/infrastructure/database/TourCa
 import { AddOnRepository } from "@vip-ride/infrastructure/database/AddOnRepository";
 import { FeaturedTransferRepository } from "@vip-ride/infrastructure/database/FeaturedTransferRepository";
 import { NodemailerAdapter } from "@vip-ride/infrastructure/external/email/NodemailerAdapter";
+import { BrevoApiAdapter } from "@vip-ride/infrastructure/external/email/BrevoApiAdapter";
 import { IyzicoAdapter } from "@vip-ride/infrastructure/external/payment/IyzicoAdapter";
 import { CreateReservationUseCase } from "@vip-ride/application/use-cases/booking/CreateReservation";
 import { GetReservationsUseCase } from "@vip-ride/application/use-cases/booking/GetReservations";
@@ -83,13 +84,21 @@ const addOnRepository = new AddOnRepository();
 const featuredTransferRepository = new FeaturedTransferRepository();
 
 // Initialize email adapter with error handling
-let emailAdapter: NodemailerAdapter | null = null;
+// Use BREVO API if EMAIL_USE_API is set, otherwise use SMTP
+let emailAdapter: NodemailerAdapter | BrevoApiAdapter | null = null;
+const useBrevoApi = process.env.EMAIL_USE_API === "true";
+
 try {
-  emailAdapter = new NodemailerAdapter();
-  console.log("[Server] Email adapter initialized successfully");
+  if (useBrevoApi) {
+    emailAdapter = new BrevoApiAdapter();
+    console.log("[Server] BREVO API adapter initialized successfully");
+  } else {
+    emailAdapter = new NodemailerAdapter();
+    console.log("[Server] SMTP email adapter initialized successfully");
+  }
 } catch (error) {
   console.error("[Server] Failed to initialize email adapter:", error instanceof Error ? error.message : String(error));
-  console.warn("[Server] Email functionality will be disabled. Please set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD environment variables.");
+  console.warn("[Server] Email functionality will be disabled. Please set EMAIL_PASSWORD (BREVO API key) or EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD (SMTP) environment variables.");
 }
 
 const paymentAdapter = new IyzicoAdapter();
