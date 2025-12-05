@@ -452,6 +452,8 @@
     "hourlyService": "Saatlik Hizmet",
     "dailyService": "Günlük Hizmet",
     "weeklyService": "Haftalık Hizmet",
+    "priceBreakdown": "Fiyat Detayı",
+    "priceBreakdown": "Fiyat Detayı",
     "luxuryCars": "Lüks Filo",
     "professionalDrivers": "Profesyonel Sürücüler",
     "247Service": "7/24 Hizmet",
@@ -657,5 +659,15 @@
     "topkapiPalace": "Topkapı Sarayı",
     "galata": "Galata Kulesi",
     "bosphorus": "Boğaz"
+  },
+  "addOns": {
+    "loading": "Yükleniyor...",
+    "increase": "Artır",
+    "decrease": "Azalt"
+  },
+  "googleMaps": {
+    "loading": "Google Maps API yükleniyor...",
+    "preparing": "Hazırlanıyor...",
+    "enterLocation": "Konum girin"
   }
 }

@@ -279,7 +279,8 @@
     "pickupLocation": "موقع الاستلام",
     "dropoffLocation": "موقع التسليم",
     "estimatedDistance": "المسافة التقديرية",
-    "estimatedTravelTime": "الوقت المقدر للسفر"
+    "estimatedTravelTime": "الوقت المقدر للسفر",
+    "priceBreakdown": "تفاصيل السعر"
   },
   "payment": {
     "redirectingTitle": "دفع آمن",
@@ -432,7 +433,10 @@
     "completeBooking": "أكمل حجزك",
     "completeYourBooking": "أدخل معلوماتك لإكمال الحجز",
     "reviewAndPay": "راجع تفاصيل النقل وانتقل إلى الدفع",
-    "returnTrip": "رحلة العودة"
+    "returnTrip": "رحلة العودة",
+    "vehicleUnavailable": "المركبة المحددة غير موجودة. يرجى المحاولة مرة أخرى لاحقًا.",
+    "priceBreakdown": "تفاصيل السعر",
+    "oneWay": "في اتجاه واحد"
   },
   "chauffeur": {
     "title": "تأجير سيارة مع سائق",
@@ -440,6 +444,7 @@
     "hourlyService": "خدمة بالساعة",
     "dailyService": "خدمة يومية",
     "weeklyService": "خدمة أسبوعية",
+    "priceBreakdown": "تفاصيل السعر",
     "luxuryCars": "أسطول فاخر",
     "professionalDrivers": "سائقون محترفون",
     "247Service": "خدمة على مدار الساعة",
@@ -641,5 +646,15 @@
     "topkapiPalace": "قصر توبكابي",
     "galata": "برج غلطة",
     "bosphorus": "البوسفور"
+  },
+  "addOns": {
+    "loading": "جاري التحميل...",
+    "increase": "زيادة",
+    "decrease": "تقليل"
+  },
+  "googleMaps": {
+    "loading": "جاري تحميل Google Maps API...",
+    "preparing": "جاري التحضير...",
+    "enterLocation": "أدخل الموقع"
   }
 }

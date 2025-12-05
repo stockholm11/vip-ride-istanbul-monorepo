@@ -127,7 +127,7 @@ export default function AddOnsAccordion({
                           onClick={() => updateQuantity(addOn.id, -1)}
                           disabled={quantity === 0}
                           className="p-1 rounded-full border border-gray-300 hover:border-primary hover:bg-primary hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          aria-label="Azalt"
+                          aria-label={t("addOns.decrease", { defaultValue: "Decrease" })}
                         >
                           <MinusIcon className="h-4 w-4" />
                         </button>
@@ -138,7 +138,7 @@ export default function AddOnsAccordion({
                           type="button"
                           onClick={() => updateQuantity(addOn.id, 1)}
                           className="p-1 rounded-full border border-gray-300 hover:border-primary hover:bg-primary hover:text-white transition-colors"
-                          aria-label="Artır"
+                          aria-label={t("addOns.increase", { defaultValue: "Increase" })}
                         >
                           <PlusIcon className="h-4 w-4" />
                         </button>

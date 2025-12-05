@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import usePlacesAutocomplete from "use-places-autocomplete";
+import { useTranslation } from "react-i18next";
 
 interface GoogleAutocompleteProps {
   value: string;
@@ -22,12 +23,14 @@ const isGoogleMapsLoaded = (): boolean => {
 export default function GoogleAutocomplete({
   value,
   onChange,
-  placeholder = "Enter location",
+  placeholder,
   className = "",
   required = false,
   id,
   name,
 }: GoogleAutocompleteProps) {
+  const { t } = useTranslation();
+  const defaultPlaceholder = t("googleMaps.enterLocation", { defaultValue: "Enter location" });
   const [mapsLoaded, setMapsLoaded] = useState(isGoogleMapsLoaded());
   
   // Wait for Google Maps API to load
@@ -182,14 +185,14 @@ export default function GoogleAutocomplete({
         value={autocompleteValue}
         onChange={handleInputChange}
         disabled={isDisabled}
-        placeholder={isDisabled ? "Google Maps API yükleniyor..." : (ready ? placeholder : "Hazırlanıyor...")}
+        placeholder={isDisabled ? t("googleMaps.loading", { defaultValue: "Google Maps API is loading..." }) : (ready ? (placeholder || defaultPlaceholder) : t("googleMaps.preparing", { defaultValue: "Preparing..." }))}
         required={required}
         className={className}
         autoComplete="off"
       />
       {!mapsLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 rounded-md pointer-events-none z-10">
-          <span className="text-xs text-gray-500">Google Maps API yükleniyor...</span>
+          <span className="text-xs text-gray-500">{t("googleMaps.loading", { defaultValue: "Google Maps API is loading..." })}</span>
         </div>
       )}
       {status === "OK" && data.length > 0 && (
