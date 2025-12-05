@@ -13,26 +13,21 @@ export class NodemailerAdapter implements IEmailSender {
       );
     }
 
-    // Create transporter without pooling for better reliability
-    // Pooling can cause issues with dead connections
+    // Create transporter for Hostinger SMTP on port 587 with STARTTLS
     this.transporter = nodemailer.createTransport({
       host: env.emailHost,
-      port: env.emailPort,
-      secure: env.emailPort === 465, // true for 465, false for other ports
+      port: Number(env.emailPort), // 587
+      secure: false,               // TLS STARTTLS mode
       auth: {
         user: env.emailUser,
         pass: env.emailPassword,
       },
-      // IPv4 kullanımını zorla (IPv6 sorunlarını önlemek için)
-      family: 4,
-      // Increase timeout settings for Render/SMTP connections
-      connectionTimeout: 30000, // 30 seconds
-      greetingTimeout: 30000, // 30 seconds
-      socketTimeout: 30000, // 30 seconds
-      // Disable pooling - create fresh connection each time for better reliability
-      pool: false,
-      // Require TLS for ports other than 465
-      requireTLS: env.emailPort !== 465,
+      tls: {
+        rejectUnauthorized: false, // Hostinger sometimes returns legacy cert chains
+      },
+      connectionTimeout: 30000,
+      socketTimeout: 30000,
+      greetingTimeout: 30000,
     } as nodemailer.TransportOptions);
   }
 
