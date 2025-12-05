@@ -133,9 +133,9 @@ const VipToursPage = ({ categoryFilter = "" }: { categoryFilter?: string }) => {
                   .slice()
                   .sort((a, b) => a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }))
                   .map((category) => ({
-                    id: category.slug,
-                    label: category.name,
-                  }))}
+                  id: category.slug,
+                  label: category.name,
+                }))}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
